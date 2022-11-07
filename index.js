@@ -55,15 +55,12 @@ class Rlac {
     /**
      * Usync an async generator to yield data when ready.
      * @param {Function} cb the callback which will be called when ready
-     * @return {AsyncGenerator} the generator to wait for
+     * @return {Promise} the promise to wait for
      */
-    async* #rateLimitedAPICaller(cb) {
-        while (true) {
-            await this.#waitForYourTurn();
-            this.#totalCalled += 1;
-            const result = await cb();
-            yield result;
-        }
+    async #rateLimitedAPICaller(cb) {
+        await this.#waitForYourTurn();
+        this.#totalCalled += 1;
+        return cb();
     }
 
     /**
@@ -88,6 +85,6 @@ class Rlac {
      * @return {Promise} promise to wait for the answer
      */
     async call(cb) {
-        return (await this.#rateLimitedAPICaller(cb).next()).value;
+        return this.#rateLimitedAPICaller(cb);
     }
 }
