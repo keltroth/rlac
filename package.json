@@ -1,0 +1,24 @@
+{
+  "name": "rlac",
+  "version": "0.0.1",
+  "description": "Rate Limited API CAller",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keltroth/rlac.git"
+  },
+  "keywords": [
+    "api",
+    "rate"
+  ],
+  "author": "Django Janny <django.janny@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/keltroth/rlac/issues"
+  },
+  "homepage": "https://github.com/keltroth/rlac#readme"
+}
