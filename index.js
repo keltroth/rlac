@@ -53,7 +53,7 @@ class Rlac {
     }
 
     /**
-     * Usync an async generator to yield data when ready.
+     * Using an async function to get data when ready.
      * @param {Function} cb the callback which will be called when ready
      * @return {Promise} the promise to wait for
      */
