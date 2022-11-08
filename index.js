@@ -12,11 +12,11 @@ const apis = new Map();
  * @return {Rlac} the Rate Limited API Caller
  * @constructor
  */
-export function build(apiId, timelimit = 3000, quantity = 10) {
+export function build(obj, apiId, timelimit = 3000, quantity = 10) {
     if (apis.get(apiId)) {
         return apis.get(apiId);
     }
-    const theRlac = new Rlac(apiId, timelimit, quantity);
+    const theRlac = new Rlac(obj, apiId, timelimit, quantity);
     apis.set(apiId, theRlac);
     return theRlac;
 }
@@ -34,22 +34,32 @@ class Rlac {
 
     /**
      * Build a new Rlac.
+     * @param {Object} obj API to be proxified
      * @param apiId
      * @param timelimit
      * @param quantity
      */
-    constructor(apiId, timelimit, quantity) {
+    constructor(obj, apiId, timelimit, quantity) {
         this.#apiId = apiId;
         this.#timelimit = timelimit;
         this.#quantity = quantity;
 
         // The resetter
         setInterval(() => this.#currentCalled = 0, this.#timelimit);
-        setInterval(() => console.log({
-            current: this.#currentCalled,
-            mapSize: apis.size,
-            apiId: this.#apiId,
-        }), 500);
+
+        return new Proxy (obj, {
+            get(target, prop) {
+                if (typeof target[prop] === 'function') {
+                    return new Proxy(target[prop], {
+                        apply: async (targetFunc, thisArg, argumentsList) => {
+                            console.log(thisArg);
+                            return this.#rateLimitedAPICaller(() => Reflect.apply(targetFunc, thisArg, argumentsList));
+                        },
+                    });
+                }
+                return Reflect.get(target, prop);
+            },
+        });
     }
 
     /**
@@ -58,6 +68,7 @@ class Rlac {
      * @return {Promise} the promise to wait for
      */
     async #rateLimitedAPICaller(cb) {
+        console.log('feah')
         await this.#waitForYourTurn();
         this.#totalCalled += 1;
         return cb();
@@ -68,6 +79,7 @@ class Rlac {
      * @return {Promise} to resolve when ready
      */
     async #waitForYourTurn() {
+        console.log('meh');
         const poll = (resolve) => {
             if (this.#currentCalled < this.#quantity) {
                 this.#currentCalled += 1;
@@ -77,14 +89,5 @@ class Rlac {
             }
         }
         return new Promise(poll);
-    }
-
-    /**
-     * Schedule an api call and wait for the answer.
-     * @param {Function} cb the callback which will be called when ready
-     * @return {Promise} promise to wait for the answer
-     */
-    async call(cb) {
-        return this.#rateLimitedAPICaller(cb);
     }
 }
