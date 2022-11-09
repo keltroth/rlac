@@ -1,14 +1,15 @@
-import { Rlac } from './index.js';
+import { rlac } from './index.js';
 
 const api = {
     tester(value) {
         console.log(`Yeah ${value}`);
+        return new Date();
     },
 };
 
-const test = new Rlac(api, 'yeah', 3000, 10);
-const test2 = new Rlac(api, 'yeah', 3000, 10);
-const test3 = new Rlac(api, 'yeah2', 3000, 10);
+const test = rlac(api, 'yeah', 3000, 10);
+const test2 = rlac(api, 'yeah', 3000, 10);
+const test3 = rlac(api, 'yeah2', 3000, 10);
 
 
 let idx = 0;
